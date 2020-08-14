@@ -1,5 +1,5 @@
 section .data
-	arr DB 78, 23, 12, 87, 54, 12, 11, 13, 18, 55, 31, 71, 74, 47, 66, 61, 97, 82, 22, 25
+	arr DB 78, 23, 12, 87, 98, 54, 11, 13, 18, 55, 31, 71, 74, 47, 66, 61, 82, 96, 22, 25
 	len EQU $ - arr
 	temp DW 0
 	
@@ -21,8 +21,20 @@ section .data
 			jl get_greater
 	%endmacro
 	
-	%macro etapa_b 2
+	%macro etapa_b 1
+		xor ax, ax
+		xor al, al
+		xor ah, ah
+		xor cl, cl
 		
+		mov [%1], bl
+		mov ax, [%1]
+		
+		mov cl, 10
+		div cl
+		
+		xor bl, bl
+		mov bl, al
 	%endmacro
 	
 	%macro etapa_c 2
@@ -39,20 +51,7 @@ _start:
 	etapa_a arr, len
 	
 	;ETAPA B, ID = 1 (Digito da dezena)
-	
-	xor ax, ax
-	xor al, al
-	xor ah, ah
-	xor cl, cl
-	
-	mov [temp], bl
-	mov ax, [temp]
-	
-	mov cl, 10
-	div cl
-	
-	xor bl, bl
-	mov bl, al
+	etapa_b temp
 	
 	;ETAPA C, ID = 1 (Fatorial)
 	
