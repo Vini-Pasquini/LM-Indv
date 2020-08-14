@@ -4,10 +4,12 @@ section .data
 	
 	temp DW 0
 	
-	fact DB 0
-	fArr DB '0', '0', '0', '0', '0', '1', 10
+	fValue DB 0
+	fArr DB "000001", 10
 	fLen EQU $ - fArr
-	quo DW 0
+	
+	msg DB "Valor final: "
+	mLen EQU $ - msg
 	
 	%macro etapa_a 2
 		xor bl, bl
@@ -40,8 +42,44 @@ section .data
 		div cl
 	%endmacro
 	
-	%macro etapa_c 2
-		
+	%macro etapa_c 3
+		mov [%1], al
+		mov [%3], BYTE 0
+		xor ax, ax
+		xor al, al
+		xor ah, ah
+		xor cl, cl
+		inc cl
+		mult_loop:
+			xor edx, edx
+			mov edx, fLen
+			sub edx, 2
+			arr_loop:
+				mov ax, [%2+edx]
+				sub ax, '0'
+				mul cl
+				add ax, [%3]
+				mov bl, 10
+				div bl
+				mov [%3], al
+				add ah, '0'
+				mov [%2+edx], ah
+				dec edx
+			arr_cond:
+				cmp dl, 0
+				jge arr_loop
+			inc cl
+		mult_cond:
+			cmp cl, [%1]
+			jle mult_loop
+	%endmacro
+	
+	%macro print 2
+		mov eax, 4
+		mov ebx, 1
+		mov ecx, %1
+		mov edx, %2
+		int 0x80
 	%endmacro
 	
 section .text
@@ -50,48 +88,20 @@ global _start
 
 _start:
 
-	;ETAPA A, ID = 2 (Maior valor do vetor)
+	; ETAPA A, ID = 2 (Maior valor do vetor)
 	etapa_a arr, len
 	
-	;ETAPA B, ID = 1 (Digito da dezena)
+	; ETAPA B, ID = 1 (Digito da dezena)
 	etapa_b temp
 	
-	;ETAPA C, ID = 1 (Fatorial)
-	mov [fact], al
-	xor ax, ax
-	xor al, al
-	xor ah, ah
-	xor cl, cl
-	inc cl
-	mult_loop:
-		xor edx, edx
-		mov edx, fLen
-		sub edx, 2
-		arr_loop:
-			mov ax, [fArr+edx]
-			sub ax, '0'
-			mul cl
-			add ax, [quo]
-			mov bl, 10
-			div bl
-			mov [quo], al
-			add ah, '0'
-			mov [fArr+edx], ah
-			dec edx
-		arr_cond:
-			cmp dl, 0
-			jge arr_loop
-		inc cl
-	mult_cond:
-		cmp cl, [fact]
-		jle mult_loop
+	; ETAPA C, ID = 1 (Fatorial)
+	etapa_c fValue, fArr, temp
 	
-	mov eax, 4
-	mov ebx, 1
-	mov ecx, fArr
-	mov edx, fLen
-	int 0x80
+	; Impressao na tela do valor final
+	print msg, mLen
+	print fArr, fLen
 	
+	; Finaliza o programa
 	mov eax, 1
 	mov ebx, 0
 	int 0x80
