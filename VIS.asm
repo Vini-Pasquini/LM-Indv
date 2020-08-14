@@ -1,17 +1,17 @@
 section .data
-	arr DB 78, 23, 12, 87, 98, 54, 11, 13, 18, 55, 31, 71, 74, 47, 66, 61, 82, 96, 22, 25
-	len EQU $ - arr
+	array DB 78, 23, 12, 87, 98, 54, 11, 13, 18, 55, 31, 71, 74, 47, 66, 61, 82, 96, 22, 25
+	arrayLength EQU $ - array
 	
 	temp DW 0
 	
-	fValue DB 0
-	fArr DB "000001", 10
-	fLen EQU $ - fArr
+	factorialOf DB 0
+	factorialValue DB "000001", 10
+	factorialLength EQU $ - factorialValue
 	
-	msg DB "Valor final: "
-	mLen EQU $ - msg
+	finalMessage DB "Valor final: "
+	messageLength EQU $ - finalMessage
 	
-	%macro etapa_a 2
+	%macro step_a 2
 		xor bl, bl
 		xor cl, cl
 		jmp greater_cond
@@ -29,7 +29,7 @@ section .data
 			jl get_greater
 	%endmacro
 	
-	%macro etapa_b 1
+	%macro step_b 1
 		xor ax, ax
 		xor al, al
 		xor ah, ah
@@ -42,7 +42,7 @@ section .data
 		div cl
 	%endmacro
 	
-	%macro etapa_c 3
+	%macro step_c 3
 		mov [%1], al
 		mov [%3], BYTE 0
 		xor ax, ax
@@ -52,7 +52,7 @@ section .data
 		inc cl
 		mult_loop:
 			xor edx, edx
-			mov edx, fLen
+			mov edx, factorialLength
 			sub edx, 2
 			arr_loop:
 				mov ax, [%2+edx]
@@ -89,17 +89,17 @@ global _start
 _start:
 
 	; ETAPA A, ID = 2 (Maior valor do vetor)
-	etapa_a arr, len
+	step_a array, arrayLength
 	
 	; ETAPA B, ID = 1 (Digito da dezena)
-	etapa_b temp
+	step_b temp
 	
 	; ETAPA C, ID = 1 (Fatorial)
-	etapa_c fValue, fArr, temp
+	step_c factorialOf, factorialValue, temp
 	
 	; Impressao na tela do valor final
-	print msg, mLen
-	print fArr, fLen
+	print finalMessage, messageLength
+	print factorialValue, factorialLength
 	
 	; Finaliza o programa
 	mov eax, 1
